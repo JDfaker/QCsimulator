@@ -68,7 +68,19 @@ class SparseMatrix:
         @param matrix: Sparse Matrix to be dotted with \n
         @return: Tensor product of the Sparse Matrices \n
         """
-        return SparseMatrix.sparsify(np.kron(self.numpy(), matrix.numpy()))
+        a = self.numpy()
+        b = matrix.numpy()
+        
+        final_shape = (a.shape[0]*b.shape[0], a.shape[1]*b.shape[1])
+        final = np.zeros(final_shape)
+        
+        for i in range(a.shape[0]):
+            for j in range(a.shape[1]):
+                for k in range(b.shape[0]):
+                    for l in range(b.shape[1]):
+                        final[(i)*(b.shape[0]) + k][(j)*(b.shape[1]) + l] = a[i][j]+b[k][l]
+        
+        return SparseMatrix.sparsify(final))
 
     def numpy(self) -> np.array:
         """
