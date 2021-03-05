@@ -78,9 +78,9 @@ class SparseMatrix:
             for j in range(a.shape[1]):
                 for k in range(b.shape[0]):
                     for l in range(b.shape[1]):
-                        final[(i)*(b.shape[0]) + k][(j)*(b.shape[1]) + l] = a[i][j]+b[k][l]
+                        final[(i)*(b.shape[0]) + k][(j)*(b.shape[1]) + l] = a[i][j]*b[k][l]
         
-        return SparseMatrix.sparsify(final))
+        return SparseMatrix.sparsify(final)
 
     def numpy(self) -> np.array:
         """
