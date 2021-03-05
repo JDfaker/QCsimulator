@@ -96,4 +96,4 @@ class Gate_Testing:
         our_output = self.our_gate_test(gate_this_test.our_name, *self.test_qubits)
         
         assert qiskit_output.all() == our_output.all(), "The states after the gate's application do not match."
-        print("Success!"
+        print("Success!")
