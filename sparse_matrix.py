@@ -87,6 +87,22 @@ class SparseMatrix:
                 
         return SparseMatrix(values, rows, cols)
 
+    def multiply(self, multiply: int) -> SparseMatrix:
+    
+    
+        for i in range(self.inner_array.shape[2]):
+            self.inner_array[2][i] = self.inner_array[2][i] * multiply
+
+    def minus(self, matrix: SparseMatrix) -> SparseMatrix:
+
+        a = self.numpy()
+        b = matrix.numpy()
+
+        end = sparsify((a-b))
+        return end
+
+
+
     def numpy(self) -> np.array:
         """
         Convert Sparse Matrix to numpy array \n

@@ -278,15 +278,18 @@ class QuantumCircuit:
     def apply_amplification(self):
         s = np.zeros(2 ** self.qn)
         s[0] = 1
+        s = SparseMatrix.sparsify(s)
         gate_list = []
         for i in range(self.qn):
             gate_list.append(QG.H)
 
         H = gate_list[0]
         for i in range(1, self.qn):
-            H = self.tensor_product(H, gate_list[i])
-        s = SparseMatrix.dot(H, s).reshape(2 ** self.qn, 1)
-        diffuser = 2 * self.tensor_product(np.transpose(s), s) - np.eye(2 ** self.qn)
+            H = SparseMatrix.tensordot(H, gate_list[i])
+        s = SparseMatrix.dot(H, s)
+        s_1 = SparseMatrix(s.inner_array[2], 2 ** self.qn, 1)
+        s_2 = SparseMatrix(s.inner_array[2], 1, 2 ** self.qn)
+        diffuser = SparseMatrix.minus(SparseMatrix.multiply(SparseMatrix.tensordot(s_1, s_2),2),SparseMatrix.sparsify(np.eye(2 ** self.qn)))
         self.state = SparseMatrix.dot(diffuser, self.state)
 
     def plot_pr(self):
@@ -296,8 +299,9 @@ class QuantumCircuit:
             x.append(str(elem - 1))
         y = []
         
-        for i in range(self.state.shape[0]):
-            y.append((self.state[i][0]) ** 2)
+        ss = SparseMatrix.numpy(self.state)
+        for i in range(ss.shape[0]):
+            y.append((ss[i][0]) ** 2)
         plt.style.use('seaborn')
         plt.bar(x, y, width=0.5)
         plt.tick_params(axis='both', labelsize=15)
