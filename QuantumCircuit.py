@@ -5,6 +5,7 @@
 import numpy as np
 import QuantumGate as QG
 from matplotlib import pyplot as plt
+from sparse_matrix import SparseMatrix
 
 
 class QuantumCircuit:
@@ -18,7 +19,7 @@ class QuantumCircuit:
         '''
         print the current qubit state
         '''
-        print(np.transpose(self.state))
+        print(self.state.inner_array.T)
 
     def tensor_product(self, V, W):
         '''
@@ -49,31 +50,6 @@ class QuantumCircuit:
             result = np.concatenate((result, M_list[i]), axis=0)
         return result
 
-    # def dot_product(self, a, b):
-    #     '''
-    #         Input:
-    #             a: 2d numpy array
-    #             b: 2d numpy array (same shape as a)
-    #         Output:
-    #             final: dot product of a and  as 2d numpy array
-    #     '''
-
-    #     if a.shape == b.shape
-    #         continue
-    #     else:
-    #         print("error: matrices not compatible for dot product")
-    #         break
-
-    #     final = np.zeros((a.shape))
-
-    #     for i in range(a.shape[0]):
-    #         for j in range(b.shape[1]):
-    #         point = 0
-    #             for k in range(a.shape[1])
-    #             point += a[i][k] * b[k][j]
-    #         final[i][j] = total
-
-    #     return final
 
     def get_initial_state(self):
         '''
@@ -81,7 +57,7 @@ class QuantumCircuit:
         '''
         state = np.zeros(2 ** self.qn)
         state[0] = 1
-        return state.reshape(len(state), 1)
+        return SparseMatrix.sparsify(state.reshape(len(state), 1))
 
     def apply_hardmard(self, wire_index):
         '''
@@ -93,7 +69,7 @@ class QuantumCircuit:
         assert -1 < wire_index < self.qn, 'Input argument should be between wire 0 to ' + str(self.qn - 1)
 
         if self.qn == 1:
-            self.state = np.dot(QG.H, self.state)
+            self.state = SparseMatrix.dot(QG.H, self.state)
         else:
             gate_list = []
             for i in range(self.qn):
@@ -104,8 +80,8 @@ class QuantumCircuit:
 
             gate_M = gate_list[0]
             for i in range(1, self.qn):
-                gate_M = self.tensor_product(gate_M, gate_list[i])
-            self.state = np.dot(gate_M, self.state)
+                gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
+            self.state = SparseMatrix.dot(gate_M, self.state)
 
     def apply_pauliX(self, wire_index):
         '''
@@ -117,7 +93,7 @@ class QuantumCircuit:
         assert -1 < wire_index < self.qn, 'Input argument should be between wire 0 to ' + str(self.qn - 1)
 
         if self.qn == 1:
-            self.state = np.dot(QG.PX, self.state)
+            self.state = SparseMatrix.dot(QG.PX, self.state)
         else:
             gate_list = []
             for i in range(self.qn):
@@ -128,8 +104,8 @@ class QuantumCircuit:
 
             gate_M = gate_list[0]
             for i in range(1, self.qn):
-                gate_M = self.tensor_product(gate_M, gate_list[i])
-            self.state = np.dot(gate_M, self.state)
+                gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
+            self.state = SparseMatrix.dot(gate_M, self.state)
 
     def apply_pauliY(self, wire_index):
         '''
@@ -140,7 +116,7 @@ class QuantumCircuit:
         '''
         assert -1 < wire_index < self.qn, 'Input argument should be between wire 0 to ' + str(self.qn - 1)
         if self.qn == 1:
-            self.state = np.dot(QG.PY, self.state)
+            self.state = SparseMatrix.dot(QG.PY, self.state)
         else:
             gate_list = []
             for i in range(self.qn):
@@ -151,8 +127,8 @@ class QuantumCircuit:
 
             gate_M = gate_list[0]
             for i in range(1, self.qn):
-                gate_M = self.tensor_product(gate_M, gate_list[i])
-            self.state = np.dot(gate_M, self.state)
+                gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
+            self.state = SparseMatrix.dot(gate_M, self.state)
 
     def apply_pauliZ(self, wire_index):
         '''
@@ -164,7 +140,7 @@ class QuantumCircuit:
         assert -1 < wire_index < self.qn, 'Input argument should be between wire 0 to ' + str(self.qn - 1)
 
         if self.qn == 1:
-            self.state = np.dot(QG.PZ, self.state)
+            self.state = SparseMatrix.dot(QG.PZ, self.state)
         else:
             gate_list = []
             for i in range(self.qn):
@@ -174,15 +150,14 @@ class QuantumCircuit:
                     gate_list.append(QG.I)
             gate_M = gate_list[0]
             for i in range(1, self.qn):
-                gate_M = self.tensor_product(gate_M, gate_list[i])
-            self.state = np.dot(gate_M, self.state)
+                gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
+            self.state = SparseMatrix.dot(gate_M, self.state)
 
     def apply_swap(self, wire_index1, wire_index2):
-        assert wire_index1 < self.qn or wire_index2 < self.qn, 'Input argument should be between wire 0 to ' + str(
-            self.qn - 1)
+        assert wire_index1 < self.qn or wire_index2 < self.qn, 'Input argument should be between wire 0 to ' + str(self.qn - 1)
 
         if self.qn == 2:
-            self.state = np.dot(QG.SWAP, self.state)
+            self.state = SparseMatrix.dot(QG.SWAP, self.state)
         else:
             if wire_index1 < wire_index2:
                 a = wire_index1
@@ -196,8 +171,8 @@ class QuantumCircuit:
                     gate_list.append(QG.I)
             gate_M = gate_list[0]
             for i in range(1, self.qn - 1):
-                gate_M = self.tensor_product(gate_M, gate_list[i])
-            self.state = np.dot(gate_M, self.state)
+                gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
+            self.state = SparseMatrix.dot(gate_M, self.state)
 
     def apply_controlZ(self, control_qubit, target_qubit):
         '''
@@ -207,10 +182,9 @@ class QuantumCircuit:
         Output:
             change the qubit state with control z gate
         '''
-
-        C = np.array([
-            [float('nan'), 0],
-            [0, 1]
+        C = SparseMatrix.sparsify(np.array([
+            [np.nan, 0],
+            [0, 1])
         ])
         gate_list = []
         if isinstance(control_qubit, list):
@@ -232,15 +206,18 @@ class QuantumCircuit:
 
         gate_M = gate_list[0]
         for i in range(1, self.qn):
+            #gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
             gate_M = self.tensor_product(gate_M, gate_list[i])
 
         for i in range(2 ** self.qn):
             for j in range(2 ** self.qn):
                 if np.isnan(gate_M[i][j]):
+                #if SparseMatrix.get_value(gate_M, i, j) == np.nan:
                     if i == j:
                         gate_M[i][j] = 1
                     else:
                         gate_M[i][j] = 0
+        #self.state = SparseMatrix.dot(gate_M, self.state)
         self.state = np.dot(gate_M, self.state)
 
     def apply_cnot(self, control_qubit, target_qubit):
@@ -285,7 +262,7 @@ class QuantumCircuit:
                         gate_M[i][j] = 1
                     else:
                         gate_M[i][j] = 0
-        self.state = np.dot(gate_M, self.state)
+        self.state = SparseMatrix.dot(gate_M, self.state)
 
     def apply_grover_oracle(self, marks):
         I = np.eye(2 ** self.qn)
@@ -295,7 +272,8 @@ class QuantumCircuit:
         else:
             for mark in marks:
                 oracle[mark][mark] = -1
-        self.state = np.dot(oracle, self.state)
+        oracle = SparseMatrix.sparsify(oracle)
+        self.state = SparseMatrix.dot(oracle, self.state)
 
     def apply_amplification(self):
         s = np.zeros(2 ** self.qn)
@@ -307,9 +285,9 @@ class QuantumCircuit:
         H = gate_list[0]
         for i in range(1, self.qn):
             H = self.tensor_product(H, gate_list[i])
-        s = np.dot(H, s).reshape(2 ** self.qn, 1)
+        s = SparseMatrix.dot(H, s).reshape(2 ** self.qn, 1)
         diffuser = 2 * self.tensor_product(np.transpose(s), s) - np.eye(2 ** self.qn)
-        self.state = np.dot(diffuser, self.state)
+        self.state = SparseMatrix.dot(diffuser, self.state)
 
     def plot_pr(self):
         temp_x = range(1, 2 ** self.qn + 1)
@@ -317,6 +295,7 @@ class QuantumCircuit:
         for elem in temp_x:
             x.append(str(elem - 1))
         y = []
+        
         for i in range(self.state.shape[0]):
             y.append((self.state[i][0]) ** 2)
         plt.style.use('seaborn')
