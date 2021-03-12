@@ -184,8 +184,8 @@ class QuantumCircuit:
         '''
         C = SparseMatrix.sparsify(np.array([
             [np.nan, 0],
-            [0, 1])
-        ])
+            [0, 1]
+        ]))
         gate_list = []
         if isinstance(control_qubit, list):
             for i in range(self.qn):
@@ -278,7 +278,7 @@ class QuantumCircuit:
     def apply_amplification(self):
         s = np.zeros(2 ** self.qn)
         s[0] = 1
-        s = SparseMatrix.sparsify(s)
+        s = SparseMatrix.sparsify(s.reshape(len(s), 1))
         gate_list = []
         for i in range(self.qn):
             gate_list.append(QG.H)
@@ -287,9 +287,14 @@ class QuantumCircuit:
         for i in range(1, self.qn):
             H = SparseMatrix.tensordot(H, gate_list[i])
         s = SparseMatrix.dot(H, s)
-        s_1 = SparseMatrix(s.inner_array[2], 2 ** self.qn, 1)
-        s_2 = SparseMatrix(s.inner_array[2], 1, 2 ** self.qn)
-        diffuser = SparseMatrix.minus(SparseMatrix.multiply(SparseMatrix.tensordot(s_1, s_2),2),SparseMatrix.sparsify(np.eye(2 ** self.qn)))
+        s_T = SparseMatrix.transpose(s)
+        s_s = SparseMatrix.tensordot(s, s_T)
+        print(s_T.rows, s_T.cols)
+        print(s_s.rows, s_s.cols)
+        s_s_2 = SparseMatrix.multiply(s_s, 2)
+        print(s_s_2.rows, s_s_2.cols)
+        I = SparseMatrix.sparsify(np.eye(2 ** self.qn))
+        diffuser = SparseMatrix.minus(s_s_2,I)
         self.state = SparseMatrix.dot(diffuser, self.state)
 
     def plot_pr(self):

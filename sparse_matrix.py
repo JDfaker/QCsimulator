@@ -89,18 +89,33 @@ class SparseMatrix:
 
     def multiply(self, multiply: int) -> SparseMatrix:
     
-    
-        for i in range(self.inner_array.shape[2]):
-            self.inner_array[2][i] = self.inner_array[2][i] * multiply
+        values = []
+        for i in range(len(self.inner_array[2])):
+            values.append((int(self.inner_array[0][i]), int(self.inner_array[1][i]), self.inner_array[2][i] * multiply))
+        return SparseMatrix(values, self.rows, self.cols)
+
 
     def minus(self, matrix: SparseMatrix) -> SparseMatrix:
 
-        a = self.numpy()
-        b = matrix.numpy()
+        a = SparseMatrix.numpy(self)
+        b = SparseMatrix.numpy(matrix)
 
-        end = sparsify((a-b))
+        end = SparseMatrix.sparsify((a-b))
         return end
 
+    def transpose(self) -> SparseMatrix:
+
+        rows = self.cols
+        cols = self.rows
+
+        values = []
+        for i in range(len(self.inner_array[2])):
+            row = self.inner_array[1][i]
+            col = self.inner_array[0][i]
+            val = self.inner_array[2][i]
+            values.append((int(row), int(col), val))
+
+        return SparseMatrix(values, rows, cols)
 
 
     def numpy(self) -> np.array:
@@ -109,7 +124,7 @@ class SparseMatrix:
         @return: Numpy array \n
         """
         numpy_matrix = np.zeros((self.rows, self.cols))
-        for i in range(self.inner_array.shape[1]):      # pylint: disable=E1136  # pylint/issues/3139
+        for i in range(len(self.inner_array[0])):      # pylint: disable=E1136  # pylint/issues/3139
             row = int(self.inner_array[0][i])
             col = int(self.inner_array[1][i])
             val = self.inner_array[2][i]
