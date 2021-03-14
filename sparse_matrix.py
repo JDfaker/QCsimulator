@@ -142,17 +142,17 @@ class SparseMatrix:
 
         values = []
         for row in self.get_nonzero_rows():
-            row_vals = self.get_row(int(row))
+            row_vals = self.get_row(row)
 
             for col in matrix.get_nonzero_cols():
-                col_vals = matrix.get_col(int(col))
+                col_vals = matrix.get_col(col)
                 val = 0
 
                 for c_val in row_vals:
                     if c_val in col_vals.keys():
                         val += row_vals[c_val] * col_vals[c_val]
                 if val != 0:
-                    values.append((int(row), int(col), val))
+                    values.append((row, col, val))
 
         return SparseMatrix(values, self.rows, matrix.cols)
 

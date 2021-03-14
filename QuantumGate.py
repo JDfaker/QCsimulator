@@ -8,10 +8,10 @@ I = SparseMatrix.sparsify(np.eye(2))
 
 PX = SparseMatrix.sparsify(np.array([[0, 1],
                [1, 0]]))
-
-PY = SparseMatrix.sparsify(np.array([[0, -complex(0, 1)],
-               [complex(0, 1), 0]]))
-
+"""
+PY = SparseMatrix.sparsify(np.array([[0 + 0j, -0 + 1j],
+               [0 + 1j, 0 + 0j]], dtype=np.complex_))
+"""
 PZ = SparseMatrix.sparsify(np.array([[1, 0], [0, -1]]))
 
 H = SparseMatrix.sparsify(np.array([[1 / np.sqrt(2), 1 / np.sqrt(2)],

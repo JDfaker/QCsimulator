@@ -106,7 +106,7 @@ class QuantumCircuit:
             for i in range(1, self.qn):
                 gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
             self.state = SparseMatrix.dot(gate_M, self.state)
-
+    """
     def apply_pauliY(self, wire_index):
         '''
         Input:
@@ -129,7 +129,7 @@ class QuantumCircuit:
             for i in range(1, self.qn):
                 gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
             self.state = SparseMatrix.dot(gate_M, self.state)
-
+        """
     def apply_pauliZ(self, wire_index):
         '''
         Input:
@@ -173,7 +173,7 @@ class QuantumCircuit:
             for i in range(1, self.qn - 1):
                 gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
             self.state = SparseMatrix.dot(gate_M, self.state)
-
+    """
     def apply_controlZ(self, control_qubit, target_qubit):
         '''
         Input:
@@ -263,7 +263,7 @@ class QuantumCircuit:
                     else:
                         gate_M[i][j] = 0
         self.state = SparseMatrix.dot(gate_M, self.state)
-
+        """
     def apply_grover_oracle(self, marks):
         I = np.eye(2 ** self.qn)
         oracle = I
