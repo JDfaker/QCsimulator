@@ -122,8 +122,8 @@ class SparseMatrix:
                 for c_val in row_vals:
                     if c_val in col_vals.keys():
                         val += row_vals[c_val] * col_vals[c_val]
-                        if val != 0:
-                            values.append((row, col, val))
+                if val != 0:
+                    values.append((row, col, val))
 
         return SparseMatrix(values, self.rows, matrix.cols)
 

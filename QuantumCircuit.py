@@ -57,7 +57,7 @@ class QuantumCircuit:
                 if i == wire_index:
                     gate_list.append(QG.H)
                 else:
-                    gate_list.append(QG.I)
+                    gate_list.append(QG.eye)
 
             gate_M = gate_list[0]
             for i in range(1, self.qn):
@@ -81,7 +81,7 @@ class QuantumCircuit:
                 if i == wire_index:
                     gate_list.append(QG.PX)
                 else:
-                    gate_list.append(QG.I)
+                    gate_list.append(QG.eye)
 
             gate_M = gate_list[0]
             for i in range(1, self.qn):
@@ -105,7 +105,7 @@ class QuantumCircuit:
                 if i == wire_index:
                     gate_list.append(QG.PZ)
                 else:
-                    gate_list.append(QG.I)
+                    gate_list.append(QG.eye)
             gate_M = gate_list[0]
             for i in range(1, self.qn):
                 gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
@@ -133,7 +133,7 @@ class QuantumCircuit:
                 if i == a:
                     gate_list.append(QG.SWAP)
                 else:
-                    gate_list.append(QG.I)
+                    gate_list.append(QG.eye)
             gate_M = gate_list[0]
             for i in range(1, self.qn - 1):
                 gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
@@ -175,7 +175,7 @@ class QuantumCircuit:
         s_s = SparseMatrix.tensordot(s, s_T)
         s_s_2 = SparseMatrix.multiply(s_s, 2)
         eye = SparseMatrix.sparsify(np.eye(2 ** self.qn))
-        diffuser = SparseMatrix.minus(s_s_2, I)
+        diffuser = SparseMatrix.minus(s_s_2, eye)
         self.state = SparseMatrix.dot(diffuser, self.state)
 
     def plot_pr(self):
