@@ -68,19 +68,55 @@ class SparseMatrix:
         @param matrix: Sparse Matrix to be dotted with \n
         @return: Tensor product of the Sparse Matrices \n
         """
-        a = self.numpy()
-        b = matrix.numpy()
+        values = []
+        for i in range(self.inner_array.shape[1]):
+            row_a = int(self.inner_array[0][i])
+            col_a = int(self.inner_array[1][i])
+            val_a = self.inner_array[2][i]
+            for j in range(matrix.inner_array.shape[1]):
+                row_b = int(matrix.inner_array[0][j])
+                col_b = int(matrix.inner_array[1][j])
+                val_b = matrix.inner_array[2][j]
+                    
+                row_final, col_final = (row_a)*(matrix.rows) + row_b, (col_a)*(matrix.cols) + col_b
+                value = val_a * val_b
+                
+                values.append((int(row_final), int(col_final), value))
         
-        final_shape = (a.shape[0]*b.shape[0], a.shape[1]*b.shape[1])
-        final = np.zeros(final_shape)
-        
-        for i in range(a.shape[0]):
-            for j in range(a.shape[1]):
-                for k in range(b.shape[0]):
-                    for l in range(b.shape[1]):
-                        final[(i)*(b.shape[0]) + k][(j)*(b.shape[1]) + l] = a[i][j]*b[k][l]
-        
-        return SparseMatrix.sparsify(final)
+        rows, cols = self.rows*matrix.rows, self.cols*matrix.cols
+                
+        return SparseMatrix(values, rows, cols)
+
+    def multiply(self, multiply: int) -> SparseMatrix:
+    
+        values = []
+        for i in range(len(self.inner_array[2])):
+            values.append((int(self.inner_array[0][i]), int(self.inner_array[1][i]), self.inner_array[2][i] * multiply))
+        return SparseMatrix(values, self.rows, self.cols)
+
+
+    def minus(self, matrix: SparseMatrix) -> SparseMatrix:
+
+        a = SparseMatrix.numpy(self)
+        b = SparseMatrix.numpy(matrix)
+
+        end = SparseMatrix.sparsify((a-b))
+        return end
+
+    def transpose(self) -> SparseMatrix:
+
+        rows = self.cols
+        cols = self.rows
+
+        values = []
+        for i in range(len(self.inner_array[2])):
+            row = self.inner_array[1][i]
+            col = self.inner_array[0][i]
+            val = self.inner_array[2][i]
+            values.append((int(row), int(col), val))
+
+        return SparseMatrix(values, rows, cols)
+
 
     def numpy(self) -> np.array:
         """
@@ -88,7 +124,7 @@ class SparseMatrix:
         @return: Numpy array \n
         """
         numpy_matrix = np.zeros((self.rows, self.cols))
-        for i in range(self.inner_array.shape[1]):      # pylint: disable=E1136  # pylint/issues/3139
+        for i in range(len(self.inner_array[0])):      # pylint: disable=E1136  # pylint/issues/3139
             row = int(self.inner_array[0][i])
             col = int(self.inner_array[1][i])
             val = self.inner_array[2][i]
@@ -106,16 +142,17 @@ class SparseMatrix:
 
         values = []
         for row in self.get_nonzero_rows():
-            row_vals = self.get_row(int(row))
+            row_vals = self.get_row(row)
 
             for col in matrix.get_nonzero_cols():
-                col_vals = matrix.get_col(int(col))
+                col_vals = matrix.get_col(col)
                 val = 0
 
                 for c_val in row_vals:
                     if c_val in col_vals.keys():
                         val += row_vals[c_val] * col_vals[c_val]
-                values.append((int(row), int(col), val))
+                if val != 0:
+                    values.append((row, col, val))
 
         return SparseMatrix(values, self.rows, matrix.cols)
 
@@ -158,8 +195,7 @@ class SparseMatrix:
             if row < self.inner_array[0][i]:
                 break
 
-            if row == self.inner_array[0][i]:
-                if col == self.inner_array[1][i]:
+            elif row == self.inner_array[0][i] and col == self.inner_array[1][i]:
                     return self.inner_array[2][i]
         return 0
 

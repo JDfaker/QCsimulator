@@ -2,22 +2,22 @@
 # coding: utf-8
 
 import numpy as np
+from sparse_matrix import SparseMatrix
 
-I = np.eye(2)
+I = SparseMatrix.sparsify(np.eye(2))
 
-PX = np.array([[0, 1],
-               [1, 0]])
+PX = SparseMatrix.sparsify(np.array([[0, 1],
+               [1, 0]]))
+"""
+PY = SparseMatrix.sparsify(np.array([[0 + 0j, -0 + 1j],
+               [0 + 1j, 0 + 0j]], dtype=np.complex_))
+"""
+PZ = SparseMatrix.sparsify(np.array([[1, 0], [0, -1]]))
 
-PY = np.array([[0, -np.complex(0, 1)],
-               [np.complex(0, 1), 0]])
+H = SparseMatrix.sparsify(np.array([[1 / np.sqrt(2), 1 / np.sqrt(2)],
+              [1 / np.sqrt(2), -1 / np.sqrt(2)]]))
 
-PZ = np.array([[1, 0],
-               [0, -1]])
-
-H = np.array([[1 / np.sqrt(2), 1 / np.sqrt(2)],
-              [1 / np.sqrt(2), -1 / np.sqrt(2)]])
-
-SWAP = np.array([[1, 0, 0, 0],
+SWAP = SparseMatrix.sparsify(np.array([[1, 0, 0, 0],
                  [0, 0, 1, 0],
                  [0, 1, 0, 0],
-                 [0, 0, 0, 1]])
+                 [0, 0, 0, 1]]))
