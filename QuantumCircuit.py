@@ -1,6 +1,6 @@
-#!/usr/bin/env python
-# coding: utf-8
-
+"""
+This module holds the Quantum Circuit class
+"""
 
 import numpy as np
 import QuantumGate as QG
@@ -9,51 +9,32 @@ from sparse_matrix import SparseMatrix
 
 
 class QuantumCircuit:
+    """
+    This is a class for implimenting grover's algorithm
+    as well as various quantum gates. \n
+    It hold a quantum state as a sparse matrix and the number of qubits. \n
+    The sparse matrices are implimented via a seperate class SparseMatrix. \n
+    """
 
     def __init__(self, qubit_number):
+        """
+        This is the constructor method for Quantum Circuit \n
+        @param qubit_number: Number of qubits in state \n
+        """
         assert (qubit_number > 0), 'Qubit number should be more than 0'
         self.qn = qubit_number
         self.state = self.get_initial_state()
 
     def show_state(self):
         '''
-        print the current qubit state
+        Method to show current state in terminal \n
         '''
-        print(self.state.inner_array.T)
-
-    def tensor_product(self, V, W):
-        '''
-        Input:
-            V: an one two dimentional numpy array
-            W: an one two dimentional numpy array
-        Output:
-            a two dimensional numpy array
-        '''
-        result = None
-        M_list = []
-        for V_row_index in range(V.shape[0]):
-            R_list = []
-            for V_col_index in range(V.shape[1]):
-                temp = np.zeros(W.shape)
-                V_entry = V[V_row_index][V_col_index]
-                for W_row_index in range(W.shape[0]):
-                    for W_col_index in range(W.shape[1]):
-                        temp[W_row_index][W_col_index] = V_entry * W[W_row_index][W_col_index]
-                if len(R_list) == 0:
-                    R_list = temp
-                else:
-                    R_list = np.concatenate((R_list, temp), axis=1)
-            M_list.append(R_list)
-
-        result = M_list[0]
-        for i in range(1, len(M_list)):
-            result = np.concatenate((result, M_list[i]), axis=0)
-        return result
-
+        print(SparseMatrix.numpy(self.state))
 
     def get_initial_state(self):
         '''
-        initialize the qubit state given by the number of qubit
+        Initialize the qubit state given by the number of qubits \n
+        @return: Quantum state as a sparse matrix \n
         '''
         state = np.zeros(2 ** self.qn)
         state[0] = 1
@@ -61,12 +42,12 @@ class QuantumCircuit:
 
     def apply_hardmard(self, wire_index):
         '''
-        Input:
-            wire_index: Integer
-        Ouput:
-            change the qubit state with hardmard gate
+        Method applying the hardman gate to the quantum state \n
+        @param wire_index: Integer indicating location of hardman gate \n
+        @return: State changed via going through hardman gate \n
         '''
-        assert -1 < wire_index < self.qn, 'Input argument should be between wire 0 to ' + str(self.qn - 1)
+        assert -1 < wire_index < self.qn, (
+            'Input argument should be between wire 0 to ' + str(self.qn - 1))
 
         if self.qn == 1:
             self.state = SparseMatrix.dot(QG.H, self.state)
@@ -85,12 +66,12 @@ class QuantumCircuit:
 
     def apply_pauliX(self, wire_index):
         '''
-        Input:
-            wire_index: Integer
-        Ouput:
-            change the qubit state with Pauli X gate
+        Method applying the Pauli X gate to the quantum state \n
+        @param wire_index: Integer indicating location of gate \n
+        @return: State changed via going through gate \n
         '''
-        assert -1 < wire_index < self.qn, 'Input argument should be between wire 0 to ' + str(self.qn - 1)
+        assert -1 < wire_index < self.qn, (
+            'Input argument should be between wire 0 to ' + str(self.qn - 1))
 
         if self.qn == 1:
             self.state = SparseMatrix.dot(QG.PX, self.state)
@@ -106,38 +87,15 @@ class QuantumCircuit:
             for i in range(1, self.qn):
                 gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
             self.state = SparseMatrix.dot(gate_M, self.state)
-    """
-    def apply_pauliY(self, wire_index):
-        '''
-        Input:
-            wire_index: Integer
-        Ouput:
-            change the qubit state with Pauli Y gate
-        '''
-        assert -1 < wire_index < self.qn, 'Input argument should be between wire 0 to ' + str(self.qn - 1)
-        if self.qn == 1:
-            self.state = SparseMatrix.dot(QG.PY, self.state)
-        else:
-            gate_list = []
-            for i in range(self.qn):
-                if i == wire_index:
-                    gate_list.append(QG.PY)
-                else:
-                    gate_list.append(QG.I)
 
-            gate_M = gate_list[0]
-            for i in range(1, self.qn):
-                gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
-            self.state = SparseMatrix.dot(gate_M, self.state)
-        """
     def apply_pauliZ(self, wire_index):
         '''
-        Input:
-            wire_index: Integer
-        Ouput:
-            change the qubit state with Pauli Z gate
+        Method applying the Pauli Z gate to the quantum state \n
+        @param wire_index: Integer indicating location of gate \n
+        @return: State changed via going through gate \n
         '''
-        assert -1 < wire_index < self.qn, 'Input argument should be between wire 0 to ' + str(self.qn - 1)
+        assert -1 < wire_index < self.qn, (
+            'Input argument should be between wire 0 to ' + str(self.qn - 1))
 
         if self.qn == 1:
             self.state = SparseMatrix.dot(QG.PZ, self.state)
@@ -154,7 +112,14 @@ class QuantumCircuit:
             self.state = SparseMatrix.dot(gate_M, self.state)
 
     def apply_swap(self, wire_index1, wire_index2):
-        assert wire_index1 < self.qn or wire_index2 < self.qn, 'Input argument should be between wire 0 to ' + str(self.qn - 1)
+        '''
+        Method applying the swap gate to the quantum state \n
+        @param wire_index1: Integer indicating location of gate \n
+        @param wire_index2: Integer indicating location of gate \n
+        @return: State changed via going through gate \n
+        '''
+        assert wire_index1 < self.qn or wire_index2 < self.qn, (
+            'Input argument should be between wire 0 to ' + str(self.qn - 1))
 
         if self.qn == 2:
             self.state = SparseMatrix.dot(QG.SWAP, self.state)
@@ -173,100 +138,15 @@ class QuantumCircuit:
             for i in range(1, self.qn - 1):
                 gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
             self.state = SparseMatrix.dot(gate_M, self.state)
-    """
-    def apply_controlZ(self, control_qubit, target_qubit):
-        '''
-        Input:
-            control_qubit: Integer or List
-            target_qubit: Integer
-        Output:
-            change the qubit state with control z gate
-        '''
-        C = SparseMatrix.sparsify(np.array([
-            [np.nan, 0],
-            [0, 1]
-        ]))
-        gate_list = []
-        if isinstance(control_qubit, list):
-            for i in range(self.qn):
-                if i in control_qubit:
-                    gate_list.append(C)
-                elif i == target_qubit:
-                    gate_list.append(QG.PZ)
-                else:
-                    gate_list.append(QG.I)
-        else:
-            for i in range(self.qn):
-                if i == control_qubit:
-                    gate_list.append(C)
-                elif i == target_qubit:
-                    gate_list.append(QG.PZ)
-                else:
-                    gate_list.append(QG.I)
 
-        gate_M = gate_list[0]
-        for i in range(1, self.qn):
-            #gate_M = SparseMatrix.tensordot(gate_M, gate_list[i])
-            gate_M = self.tensor_product(gate_M, gate_list[i])
-
-        for i in range(2 ** self.qn):
-            for j in range(2 ** self.qn):
-                if np.isnan(gate_M[i][j]):
-                #if SparseMatrix.get_value(gate_M, i, j) == np.nan:
-                    if i == j:
-                        gate_M[i][j] = 1
-                    else:
-                        gate_M[i][j] = 0
-        #self.state = SparseMatrix.dot(gate_M, self.state)
-        self.state = np.dot(gate_M, self.state)
-
-    def apply_cnot(self, control_qubit, target_qubit):
-        '''
-        Input:
-            control_qubit: Integer or List
-            target_qubit: Integer
-        Output:
-            change the qubit state with control not gate
-        '''
-
-        C = np.array([
-            [float('nan'), 0],
-            [0, 1]
-        ])
-        gate_list = []
-        if isinstance(control_qubit, list):
-            for i in range(self.qn):
-                if i in control_qubit:
-                    gate_list.append(C)
-                elif i == target_qubit:
-                    gate_list.append(QG.PX)
-                else:
-                    gate_list.append(QG.I)
-        else:
-            for i in range(self.qn):
-                if i == control_qubit:
-                    gate_list.append(C)
-                elif i == target_qubit:
-                    gate_list.append(QG.PX)
-                else:
-                    gate_list.append(QG.I)
-
-        gate_M = gate_list[0]
-        for i in range(1, self.qn):
-            gate_M = self.tensor_product(gate_M, gate_list[i])
-
-        for i in range(2 ** self.qn):
-            for j in range(2 ** self.qn):
-                if np.isnan(gate_M[i][j]):
-                    if i == j:
-                        gate_M[i][j] = 1
-                    else:
-                        gate_M[i][j] = 0
-        self.state = SparseMatrix.dot(gate_M, self.state)
-        """
     def apply_grover_oracle(self, marks):
-        I = np.eye(2 ** self.qn)
-        oracle = I
+        '''
+        Method to apply grover oracle \n
+        @param marks: Integer or list of location for oracle \n
+        @return: Changed qubit state with grover oracle \n
+        '''
+        eye = np.eye(2 ** self.qn)
+        oracle = eye
         if isinstance(marks, int):
             oracle[marks][marks] = -1
         else:
@@ -276,6 +156,10 @@ class QuantumCircuit:
         self.state = SparseMatrix.dot(oracle, self.state)
 
     def apply_amplification(self):
+        '''
+        Method applying amplitude amplification of marked item \n
+        @return: Changed qubit state via amplification of marked item \n
+        '''
         s = np.zeros(2 ** self.qn)
         s[0] = 1
         s = SparseMatrix.sparsify(s.reshape(len(s), 1))
@@ -290,17 +174,21 @@ class QuantumCircuit:
         s_T = SparseMatrix.transpose(s)
         s_s = SparseMatrix.tensordot(s, s_T)
         s_s_2 = SparseMatrix.multiply(s_s, 2)
-        I = SparseMatrix.sparsify(np.eye(2 ** self.qn))
-        diffuser = SparseMatrix.minus(s_s_2,I)
+        eye = SparseMatrix.sparsify(np.eye(2 ** self.qn))
+        diffuser = SparseMatrix.minus(s_s_2, I)
         self.state = SparseMatrix.dot(diffuser, self.state)
 
     def plot_pr(self):
+        '''
+        Plotting probabilities of qubit states
+        @result: Bar graph of probabilities
+        '''
         temp_x = range(1, 2 ** self.qn + 1)
         x = []
         for elem in temp_x:
             x.append(str(elem - 1))
         y = []
-        
+
         ss = SparseMatrix.numpy(self.state)
         for i in range(ss.shape[0]):
             y.append((ss[i][0]) ** 2)
