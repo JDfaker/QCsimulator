@@ -1,11 +1,21 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
 '''
-This module holds the Utility_Testing, Gate_For_Test, Gate_Testing, Sparse_Testing and Grover_Testing classes, and Run_Tests class to run them in pytest. \n
+This module holds the Utility_Testing, Gate_For_Test, Gate_Testing, Sparse_Testing and Grover_Testing classes, and the code to run them. \n
 '''
 import qiskit
 import numpy as np 
 import QuantumCircuit
 import sparse_matrix
 import scipy.sparse
+
+
+# In[2]:
+
 
 class Utility_Testing:
     '''
@@ -39,6 +49,10 @@ class Utility_Testing:
         outputstate = result.get_statevector(circ, decimals=3)
         return outputstate
 
+
+# In[3]:
+
+
 class Gate_For_Test:
     '''
     Defines gates to be tested. \n
@@ -53,6 +67,10 @@ class Gate_For_Test:
         self.qiskit_name = qiskit_name
         self.our_name = our_name
         self.num_qubits = num_qubits
+
+
+# In[4]:
+
 
 class Gate_Testing:
     '''
@@ -101,11 +119,15 @@ class Gate_Testing:
         
         assert (np.abs(np.subtract(qiskit_output, our_output)) <= 0.00005).all(), "The states after the gate's application do not match. {} != {}".format(qiskit_output, our_output)
 
+
+# In[5]:
+
+
 class Sparse_Testing:
     '''
     Methods to test the functionality of Sparse Matrix methods. \n
     '''
-    def __init__(self, test_matrix_1=None, test_matrix_2=None):
+    def __init__(self, test_matrix_1=None, test_matrix_2=None, seed=None):
         '''
         Constructor for sparse matrix testing. Note that if either matrix is None, both will be randomly generated, to ensure
         consistency of dot product methods. \n
@@ -116,7 +138,7 @@ class Sparse_Testing:
         @param test_matrix_2: Second matrix to multiply. Will be generated randomly if not provided. \n
         '''
         if test_matrix_1==None or test_matrix_2==None:
-            self.test_matrix_1, self.test_matrix_2 = Utility_Testing().get_random_matrices()
+            self.test_matrix_1, self.test_matrix_2 = Utility_Testing(self.seed).get_random_matrices()
         else:
             self.test_matrix_1 = test_matrix_1
             self.test_matrix_2 = test_matrix_2
@@ -210,6 +232,10 @@ class Sparse_Testing:
             assert output == [x for x in range(len(self.test_matrix_1[0])) if np.array([self.test_matrix_1[i][x] for i in range(len(self.test_matrix_1))]).any() == True],"Columns with nonzero elements exist that have not been retrived by get_nonzero_cols: {}.".format([x for x in range(len(self.test_matrix_1[0])) if np.array([self.test_matrix_1[i][x] for i in range(len(self.test_matrix_1))]).any() == True and x not in output])
         else:
             raise ValueError("Invalid operation provided to get_attribute_test ({})".format(operation))
+
+
+# In[6]:
+
 
 class Grover_Testing:
     '''
@@ -308,27 +334,46 @@ class Grover_Testing:
         assert np.where(qiskit_result**2 >= complex(0.999)**2) == np.where(our_result >= 0.999), "The simulators did not find the same state. {} != {}".format(np.where(qiskit_result**2 >= complex(0.999)**2), np.where(our_result >= 0.999))
         assert np.abs(np.real(np.amax(qiskit_result*np.conj(qiskit_result))) - np.amax(our_result)**2) <= 0.005, "The converted values of the found states do not match to within +/- 0.005. {} != {}".format(np.real(np.amax(qiskit_result*np.conj(qiskit_result))), np.amax(our_result)**2)
 
+
+# In[7]:
+
+
 class Test_Run:
-	def test_everything(self, qubits=5):
-		Gate_Testing(qubits).gate_test("h", 0)
-		Gate_Testing(qubits).gate_test("x", 0)
-		Gate_Testing(qubits).gate_test("z", 0)
-		Gate_Testing(qubits).gate_test("swap", 0, 1)
+    '''
+    Runs all tests when used with pytest.\n
+    '''
+    def test_everything(self, qubits=5, h_target=0, x_target=0, z_target=0, swap_targets=(0,1), test_matrix_1=None, test_matrix_2=None, multiple=5, col_target=0, row_target=0, value_target=(0,0), grover_target=0):
+        '''
+        @param qubits: size of quantum registers used for tests
+        @param h_target/x_target/z_target: target qubits of h-gate/x-gate/z-gate tests respectively
+        @param swap_targets: target qubits of swap-gate test
+        @param test_matrix_1, test_matrix_2: matrices to test sparse matrix method. Will be randomly generated if either is None.
+        @param multiple: scalar to use for testing the sparse matrix multiply method
+        @param col_target/row_target: target column/row respecitvely for get_col and get_row tests
+        @param value_target: target value for get_value test
+        @param grover_target: target state for grover search testing
+        '''
+        Gate_Testing(qubits).gate_test("h", h_target)
+        Gate_Testing(qubits).gate_test("x", x_target)
+        Gate_Testing(qubits).gate_test("z", z_target)
+        Gate_Testing(qubits).gate_test("swap", *swap_targets)
 
-		Sparse_Testing().basic_sparsify_test()
-		Sparse_Testing().sparse_dot_test()
-		Sparse_Testing().sparse_tensor_dot_test()
-		Sparse_Testing().sparse_multiply_test(5)
-		Sparse_Testing().sparse_minus_test()
-		Sparse_Testing().sparse_transpose_test()
-		Sparse_Testing().get_attribute_test("col", 0)
-		Sparse_Testing().get_attribute_test("row", 0)
-		Sparse_Testing().get_attribute_test("value", 0, 0)
-		Sparse_Testing().get_attribute_test("nonzero_rows")
-		Sparse_Testing().get_attribute_test("nonzero_cols")
+        Sparse_Testing(test_matrix_1, test_matrix_2).basic_sparsify_test()
+        Sparse_Testing(test_matrix_1, test_matrix_2).sparse_dot_test()
+        Sparse_Testing(test_matrix_1, test_matrix_2).sparse_tensor_dot_test()
+        Sparse_Testing(test_matrix_1, test_matrix_2).sparse_multiply_test(multiple)
+        Sparse_Testing(test_matrix_1, test_matrix_2).sparse_minus_test()
+        Sparse_Testing(test_matrix_1, test_matrix_2).sparse_transpose_test()
+        Sparse_Testing(test_matrix_1, test_matrix_2).get_attribute_test("col", col_target)
+        Sparse_Testing(test_matrix_1, test_matrix_2).get_attribute_test("row", row_target)
+        Sparse_Testing(test_matrix_1, test_matrix_2).get_attribute_test("value", *value_target)
+        Sparse_Testing(test_matrix_1, test_matrix_2).get_attribute_test("nonzero_rows")
+        Sparse_Testing(test_matrix_1, test_matrix_2).get_attribute_test("nonzero_cols")
 
-		Grover_Testing(5).grover_test(2)
+        Grover_Testing(qubits).grover_test(grover_target)
 
+
+# In[ ]:
 
 
 
