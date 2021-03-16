@@ -1,21 +1,11 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 '''
-This module holds the Utility_Testing, Gate_For_Test, Gate_Testing, Sparse_Testing and Grover_Testing classes, and the code to run them. \n
+This module holds the Utility_Testing, Gate_For_Test, Gate_Testing, Sparse_Testing and Grover_Testing classes, and the Test_Run class to allow pytest to run them. \n
 '''
 import qiskit
 import numpy as np 
 import QuantumCircuit
 import sparse_matrix
 import scipy.sparse
-
-
-# In[2]:
-
 
 class Utility_Testing:
     '''
@@ -49,10 +39,6 @@ class Utility_Testing:
         outputstate = result.get_statevector(circ, decimals=3)
         return outputstate
 
-
-# In[3]:
-
-
 class Gate_For_Test:
     '''
     Defines gates to be tested. \n
@@ -67,10 +53,6 @@ class Gate_For_Test:
         self.qiskit_name = qiskit_name
         self.our_name = our_name
         self.num_qubits = num_qubits
-
-
-# In[4]:
-
 
 class Gate_Testing:
     '''
@@ -118,10 +100,6 @@ class Gate_Testing:
         our_output = np.transpose(sparse_matrix.SparseMatrix.numpy(self.our_circ.state))[0].astype(complex)
         
         assert (np.abs(np.subtract(qiskit_output, our_output)) <= 0.00005).all(), "The states after the gate's application do not match. {} != {}".format(qiskit_output, our_output)
-
-
-# In[5]:
-
 
 class Sparse_Testing:
     '''
@@ -233,10 +211,6 @@ class Sparse_Testing:
         else:
             raise ValueError("Invalid operation provided to get_attribute_test ({})".format(operation))
 
-
-# In[6]:
-
-
 class Grover_Testing:
     '''
     Contains methods to perform Grover's algorithm with both simulators and compare the results.
@@ -333,11 +307,7 @@ class Grover_Testing:
         our_result = self.our_grover_test()
         assert np.where(qiskit_result**2 >= complex(0.999)**2) == np.where(our_result >= 0.999), "The simulators did not find the same state. {} != {}".format(np.where(qiskit_result**2 >= complex(0.999)**2), np.where(our_result >= 0.999))
         assert np.abs(np.real(np.amax(qiskit_result*np.conj(qiskit_result))) - np.amax(our_result)**2) <= 0.005, "The converted values of the found states do not match to within +/- 0.005. {} != {}".format(np.real(np.amax(qiskit_result*np.conj(qiskit_result))), np.amax(our_result)**2)
-
-
-# In[7]:
-
-
+		
 class Test_Run:
     '''
     Runs all tests when used with pytest.\n
@@ -371,10 +341,3 @@ class Test_Run:
         Sparse_Testing(test_matrix_1, test_matrix_2).get_attribute_test("nonzero_cols")
 
         Grover_Testing(qubits).grover_test(grover_target)
-
-
-# In[ ]:
-
-
-
-
