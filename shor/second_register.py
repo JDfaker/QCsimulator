@@ -1,28 +1,27 @@
+"""
+
+"""
 import numpy as np
-
-
 class ShorsSecondRegister:
-    '''
+    """
 
-    '''
+    """
     def __init__(self, a, N):
-        '''
-
-        Args:
-            a:
-            N:
-        '''
+        """
+        This is the constructor method for ShorsSecondRegister \n
+        @param a: Number coprime of N \n
+        @param N: Number for factorisation \n
+        """
         self.a = int(a)
         self.N = int(N)
         self.t = int(np.ceil(np.log2(N)))  # minimum_number of classical bits
         self.state_no = int(int(2 ** (np.ceil(np.log2(N)))))  # minimum number of quantum states
 
     def generate_states(self):
-        '''
-
-        Returns:
-
-        '''
+        """
+        A method to produce states \n
+        @return: An array of generated states \n
+        """
         binaries = []
         registers = []
         my_dict = {0: np.array([1, 0]), 1: np.array([0, 1])}
@@ -41,36 +40,32 @@ class ShorsSecondRegister:
         return np.array(registers)[::-1]
 
     def toffoli_gate(self):
-        '''
-
-        Returns:
-
-        '''
-        input_value = np.empty([self.t, self.t])
-        output_value = np.empty([self.state_no, self.t])
-        function = np.empty([self.state_no, 2, self.t])
+        """
+        A method to apply the toffoli gate \n
+        @return: A function that has gone through the toffoli gate \n
+        """
+        function = np.zeros([self.state_no, 2, self.t], dtype=object)
         for i in range(0, self.state_no):
             value_input = map(int, str(format(i, ''.join('0' + str(self.t) + 'b'))))
             value_output = map(int, str(format((self.a ** i) % self.N, ''.join('0' + str(self.t) + 'b'))))
-            function[i, 0, 0:self.t] = np.array(list(value_input))
-            function[i, 1, 0:self.t] = np.array(list(value_output))
+            function[i, 0, 0:self.t] = np.array([list(value_input)])
+            function[i, 1, 0:self.t] = np.array([list(value_output)])
         return function.astype(int)
 
     def binary_to_quantum(self, function):
-        '''
-
-        Args:
-            function:
-
-        Returns:
-
-        '''
-        function_quantum_state = np.empty([self.state_no, 2, self.state_no])
-        my_dict = {0: np.array([1, 0]), 1: np.array([0, 1])}
+        """
+        A method to change a binary function into a quantum one \n
+        @param function: A numpy array to be put in quantum form
+        @return: A numpy array of the changed function \n
+        """
+        function_quantum_state = np.zeros([self.state_no, 2, self.state_no])
+        my_dict = {0: np.array([[1, 0]]), 1: np.array([[0, 1]])}
+        
         for i in range(0, self.state_no):
             temp_input = 0
             temp_output = 0
             initial_input = np.kron(my_dict[int(function[i, 0, 0])], my_dict[int(function[i, 0, 1])])
+            
             initial_output = np.kron(my_dict[int(function[i, 1, 0])], my_dict[int(function[i, 1, 1])])
             if self.t == 2:
                 function_quantum_state[i, 0, 0:self.state_no] = initial_input
@@ -83,16 +78,16 @@ class ShorsSecondRegister:
                     initial_output = temp_output
             function_quantum_state[i, 0, 0:self.state_no] = initial_input
             function_quantum_state[i, 1, 0:self.state_no] = initial_output
-        return function_quantum_state[::-1].astype(int)
+        return function_quantum_state[::-1]
 
     def perform_mod_fn(self):
-        '''
-
-        Returns:
-
-        '''
-        function = self.binary_to_quantum(self.toffoli_gate())
-        initial_states = self.generate_states()
+        """
+        A method for periodic finding \n
+        @return: The found values as a numpy array \n
+        """
+        tg = ShorsSecondRegister.toffoli_gate(self)
+        function = ShorsSecondRegister.binary_to_quantum(self, tg)
+        initial_states = ShorsSecondRegister.generate_states(self)
         combined_registers = np.empty([len(initial_states), 2, self.state_no])
         for i in range(0, len(initial_states)):
             find = initial_states[i]
@@ -102,12 +97,11 @@ class ShorsSecondRegister:
         return combined_registers
 
     def pick_out_states(self):
-        '''
-
-        Returns:
-
-        '''
-        register = self.perform_mod_fn()
+        """
+        A method to find location of states \n
+        @return: Numpy array of positions of states \n
+        """
+        register = ShorsSecondRegister.perform_mod_fn(self)
         unique_states = np.unique(register[:, 1, :], axis=0)
         prob = []
         for i in range(len(unique_states)):
@@ -119,11 +113,3 @@ class ShorsSecondRegister:
         find = unique_states[value, :].astype(int)
         positions = np.where((register[:, 1, :]).dot(find) == 1)
         return np.array(positions)
-
-    def work_out_original_indexes(self):
-        '''
-
-        Returns:
-
-        '''
-        return self.pick_out_states()

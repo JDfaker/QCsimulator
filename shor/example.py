@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 
-from shor.algorithm import Shors
+from algorithm import Shors
 
 
 def main(shors: Shors):

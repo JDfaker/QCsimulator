@@ -1,20 +1,22 @@
+"""
+This modeule holds the Shors class
+"""
 import numpy as np
-
-from shor.second_register import ShorsSecondRegister
-from shor.quantum_fourier_transform import QFT
+from second_register import ShorsSecondRegister
+from quantum_fourier_transform import QFT
 
 
 class Shors:
-    '''
-
-    '''
+    """
+    This is a class to impliment Shor"s algorithm \n
+    It is linked with the classes ShorsSecondRegister and QFT (quantum fourier transform) \n
+    """
     def __init__(self, a, N):
-        '''
-
-        Args:
-            a:
-            N:
-        '''
+        """
+        This is the constructor method for Shors \n
+        @param a: A number coprime of N \n
+        @param N: A number we wish to factor \n
+        """
         self.a = int(a)
         self.N = int(N)
         self.t = int(np.ceil(np.log2(N)))  # minimum_number of classical bits
@@ -23,12 +25,11 @@ class Shors:
         self.qft = QFT(self.t)
 
     def compute_r(self):
-        '''
-
-        Returns:
-
-        '''
-        indexes = self.second_register.work_out_original_indexes()
+        """
+        Method for computing r \n
+        @return: An integer for r \n
+        """
+        indexes = ShorsSecondRegister.pick_out_states(self)
         probs = np.abs((np.real(self.qft.generate_superposition()))) ** 2
         states = np.empty([1, len(indexes[0]), 2])
         for i in range(len(indexes[0])):
@@ -38,14 +39,10 @@ class Shors:
             int)
 
     def cf(self, n):
-        '''
-
-        Args:
-            n:
-
-        Returns:
-
-        '''
+        """
+        Method for finding cf \n
+        @
+        """
         d = self.state_no
         res = []
         q, r = divmod(n, d)
