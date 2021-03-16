@@ -2,7 +2,6 @@
 # coding: utf-8
 
 import numpy as np
-import math
 
 I = np.eye(2)
 
