@@ -115,6 +115,8 @@ class Sparse_Testing:
         @param test_matrix_1: First matrix to multiply. Will be generated randomly if not provided. \n
         @param test_matrix_2: Second matrix to multiply. Will be generated randomly if not provided. \n
         '''
+        self.seed=seed
+        
         if test_matrix_1==None or test_matrix_2==None:
             self.test_matrix_1, self.test_matrix_2 = Utility_Testing(self.seed).get_random_matrices()
         else:
@@ -307,7 +309,7 @@ class Grover_Testing:
         our_result = self.our_grover_test()
         assert np.where(qiskit_result**2 >= complex(0.999)**2) == np.where(our_result >= 0.999), "The simulators did not find the same state. {} != {}".format(np.where(qiskit_result**2 >= complex(0.999)**2), np.where(our_result >= 0.999))
         assert np.abs(np.real(np.amax(qiskit_result*np.conj(qiskit_result))) - np.amax(our_result)**2) <= 0.005, "The converted values of the found states do not match to within +/- 0.005. {} != {}".format(np.real(np.amax(qiskit_result*np.conj(qiskit_result))), np.amax(our_result)**2)
-		
+        
 class Test_Run:
     '''
     Runs all tests when used with pytest.\n
@@ -341,3 +343,4 @@ class Test_Run:
         Sparse_Testing(test_matrix_1, test_matrix_2).get_attribute_test("nonzero_cols")
 
         Grover_Testing(qubits).grover_test(grover_target)
+        
