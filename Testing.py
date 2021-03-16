@@ -1,5 +1,5 @@
 '''
-This module holds the Testing_Utility, Gate_For_Test, Gate_Testing, Sparse_Testing and Grover_Testing classes, and the code to run them. \n
+This module holds the Utility_Testing, Gate_For_Test, Gate_Testing, Sparse_Testing and Grover_Testing classes, and Run_Tests class to run them in pytest. \n
 '''
 import qiskit
 import numpy as np 
@@ -7,13 +7,13 @@ import QuantumCircuit
 import sparse_matrix
 import scipy.sparse
 
-class Testing_Utility:
+class Utility_Testing:
     '''
     Defines generic methods used in multiple test classes. \n 
     '''
     def __init__(self, seed=None):
         '''
-        Constructor for Testing_Utility. Used if a seeded generator is desired. \n
+        Constructor for Utility_Testing. Used if a seeded generator is desired. \n
         @param seed: allows the random matrix generator to be seeded. If not specified, the generator is used with a random seed. \n
         '''
         self.seed = np.random.seed(seed)
@@ -95,7 +95,7 @@ class Gate_Testing:
         assert len(test_qubits)<=gate_this_test.num_qubits, "Number of test qubits provided is greater than number given gate operates on. {} > {}".format(len(test_qubits), gate_this_test.num_qubits)
         
         exec("self.qiskit_circ." + str(gate_this_test.qiskit_name) + "(*test_qubits)")
-        qiskit_output = Testing_Utility().run_qiskit_circuit(self.qiskit_circ)
+        qiskit_output = Utility_Testing().run_qiskit_circuit(self.qiskit_circ)
         exec("self.our_circ." + str(gate_this_test.our_name) + "(*test_qubits_ours)")
         our_output = np.transpose(sparse_matrix.SparseMatrix.numpy(self.our_circ.state))[0].astype(complex)
         
@@ -116,7 +116,7 @@ class Sparse_Testing:
         @param test_matrix_2: Second matrix to multiply. Will be generated randomly if not provided. \n
         '''
         if test_matrix_1==None or test_matrix_2==None:
-            self.test_matrix_1, self.test_matrix_2 = Testing_Utility().get_random_matrices()
+            self.test_matrix_1, self.test_matrix_2 = Utility_Testing().get_random_matrices()
         else:
             self.test_matrix_1 = test_matrix_1
             self.test_matrix_2 = test_matrix_2
@@ -286,11 +286,11 @@ class Grover_Testing:
         
         @return out: state after running the algorithm until the target was located to within the tolerance. \n
         '''
-        out = Testing_Utility().run_qiskit_circuit(self.qiskit_circ)
+        out = Utility_Testing().run_qiskit_circuit(self.qiskit_circ)
         while out[self.target]*np.conj(out[self.target]) < complex(0.999)*np.conj(complex(0.999)):
             self.qiskit_circ.append(self.qiskit_oracle(), range(self.num_qubits))
             self.qiskit_diffuser()
-            out = Testing_Utility().run_qiskit_circuit(self.qiskit_circ)
+            out = Utility_Testing().run_qiskit_circuit(self.qiskit_circ)
         return out
     
     def grover_test(self,target):
@@ -308,21 +308,28 @@ class Grover_Testing:
         assert np.where(qiskit_result**2 >= complex(0.999)**2) == np.where(our_result >= 0.999), "The simulators did not find the same state. {} != {}".format(np.where(qiskit_result**2 >= complex(0.999)**2), np.where(our_result >= 0.999))
         assert np.abs(np.real(np.amax(qiskit_result*np.conj(qiskit_result))) - np.amax(our_result)**2) <= 0.005, "The converted values of the found states do not match to within +/- 0.005. {} != {}".format(np.real(np.amax(qiskit_result*np.conj(qiskit_result))), np.amax(our_result)**2)
 
-Gate_Testing(5).gate_test("h", 0)
-Gate_Testing(5).gate_test("x", 0)
-Gate_Testing(5).gate_test("z", 0)
-Gate_Testing(5).gate_test("swap", 0, 1)
+class Test_Run:
+	def test_everything(self, qubits=5):
+		Gate_Testing(qubits).gate_test("h", 0)
+		Gate_Testing(qubits).gate_test("x", 0)
+		Gate_Testing(qubits).gate_test("z", 0)
+		Gate_Testing(qubits).gate_test("swap", 0, 1)
 
-Sparse_Testing().basic_sparsify_test()
-Sparse_Testing().sparse_dot_test()
-Sparse_Testing().sparse_tensor_dot_test()
-Sparse_Testing().sparse_multiply_test(5)
-Sparse_Testing().sparse_minus_test()
-Sparse_Testing().sparse_transpose_test()
-Sparse_Testing().get_attribute_test("col", 0)
-Sparse_Testing().get_attribute_test("row", 0)
-Sparse_Testing().get_attribute_test("value", 0, 0)
-Sparse_Testing().get_attribute_test("nonzero_rows")
-Sparse_Testing().get_attribute_test("nonzero_cols")
+		Sparse_Testing().basic_sparsify_test()
+		Sparse_Testing().sparse_dot_test()
+		Sparse_Testing().sparse_tensor_dot_test()
+		Sparse_Testing().sparse_multiply_test(5)
+		Sparse_Testing().sparse_minus_test()
+		Sparse_Testing().sparse_transpose_test()
+		Sparse_Testing().get_attribute_test("col", 0)
+		Sparse_Testing().get_attribute_test("row", 0)
+		Sparse_Testing().get_attribute_test("value", 0, 0)
+		Sparse_Testing().get_attribute_test("nonzero_rows")
+		Sparse_Testing().get_attribute_test("nonzero_cols")
 
-Grover_Testing(5).grover_test(2)
+		Grover_Testing(5).grover_test(2)
+
+
+
+
+
