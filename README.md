@@ -1,5 +1,5 @@
 # QCsimulator for QCP
-In the directory "grovers" there is an example.py file that shows an example of 
+In the directory "grover" there is an example.py file that shows an example of 
 using Grover's search, methods for Grover's are found
 in the quantum_circuit.py
 
