@@ -3,7 +3,7 @@ This module holds the Quantum Circuit class
 """
 
 import numpy as np
-import QuantumGate as QG
+import quantum_gate as QG
 from matplotlib import pyplot as plt
 from sparse_matrix import SparseMatrix
 
