@@ -38,7 +38,8 @@ class Shors:
         for i in range(len(indexes[0])):
             states[0, i, 0] = probs[indexes[0, i]]
             states[0, i, 1] = indexes[0, i]
-        pt = len(states[0, :, 0]), p = states[0, :, 0] / sum(states[0, :, 0])
+        point = len(states[0, :, 0])
+        p = states[0, :, 0] / sum(states[0, :, 0])
         return states[0, :, 1][np.random.choice(point)].astype(int)
 
     def cf(self, n):

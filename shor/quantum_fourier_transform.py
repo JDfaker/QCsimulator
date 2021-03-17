@@ -4,7 +4,7 @@ This module contains the class QFT (Quantum Fourier Transform)
 import cmath
 import numpy as np
 from matplotlib import pyplot as plt
-import QuantumGate as QG
+import quantum_gate as QG
 
 
 class QFT:
