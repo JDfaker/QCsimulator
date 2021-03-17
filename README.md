@@ -11,5 +11,5 @@ shows an example use of Shor's algorithm, methods for
 this are found in the classes in algorithm.py, 
 second_register.py, and quantum_fourier_transform.py
 
-
+Further information can be found on the wiki and in the documentation
 
