@@ -5,11 +5,10 @@ from algorithm import Shors
 
 
 def main(shors: Shors):
-    '''
-
-    Returns:
-
-    '''
+    """
+    An example use of the Shor's algorithm class \n
+    Implimenting shors algorithm and plotting histogram of output \n
+    """
     thing = shors.compute_r()
     r = shors.cf(thing)
     while r % 2 != 0:
