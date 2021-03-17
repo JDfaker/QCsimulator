@@ -38,4 +38,3 @@ if __name__ == "__main__":
     plt.ylabel('Frequencies')
     plt.title('Histogram of Shors Algorithm Output for  N = ' + str(n))
     plt.show()
-

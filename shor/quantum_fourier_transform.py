@@ -68,7 +68,9 @@ class QFT:
         Method for plotting the quantum fourier transform \n
         @return: Plot of states as bar graph \n
         """
-        plt.title(' Probaility Amplitudes for a ' + str(self.n) + ' qubit register')
+        plt.title(' Probaility Amplitudes for a '
+                  + str(self.n) + ' qubit register')
         plt.ylabel('$|\psi|^{2}$')
         plt.xlabel('Number')
-        return plt.bar(np.arange(0, 2 ** self.n), (2 * (np.real(self.generate_superposition()) ** 2)))
+        return plt.bar(np.arange(0, 2 ** self.n),
+                       (2 * (np.real(self.generate_superposition()) ** 2)))

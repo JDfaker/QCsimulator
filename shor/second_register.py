@@ -1,10 +1,13 @@
 """
-
+This module contains for ShorsSecondRegistor
 """
 import numpy as np
+
+
 class ShorsSecondRegister:
     """
-
+    This class impliments functions needed for Shor's algoithm \n
+    To be used with the class Shors and QFT \n
     """
     def __init__(self, a, N):
         """
@@ -14,8 +17,10 @@ class ShorsSecondRegister:
         """
         self.a = int(a)
         self.N = int(N)
-        self.t = int(np.ceil(np.log2(N)))  # minimum_number of classical bits
-        self.state_no = int(int(2 ** (np.ceil(np.log2(N)))))  # minimum number of quantum states
+        self.t = int(np.ceil(np.log2(N)))
+        # minimum_number of classical bits
+        self.state_no = int(int(2 ** (np.ceil(np.log2(N)))))
+        # minimum number of quantum states
 
     def generate_states(self):
         """
@@ -29,7 +34,8 @@ class ShorsSecondRegister:
             binaries.append(format(i, ''.join('0' + str(self.t) + 'b')))
         for j in range(0, self.state_no):
             temp = 0
-            initial = np.kron(my_dict[int(binaries[j][0])], my_dict[int(binaries[j][1])])
+            initial = np.kron(my_dict[int(binaries[j][0])],
+                              my_dict[int(binaries[j][1])])
             if self.t == 2:
                 registers.append(initial)
             else:
@@ -46,8 +52,12 @@ class ShorsSecondRegister:
         """
         function = np.zeros([self.state_no, 2, self.t], dtype=object)
         for i in range(0, self.state_no):
-            value_input = map(int, str(format(i, ''.join('0' + str(self.t) + 'b'))))
-            value_output = map(int, str(format((self.a ** i) % self.N, ''.join('0' + str(self.t) + 'b'))))
+            value_input = map(int,
+                              str(format(i,
+                                         ''.join('0' + str(self.t) + 'b'))))
+            value_output = map(int,
+                               str(format((self.a ** i) % self.N,
+                                          ''.join('0' + str(self.t) + 'b'))))
             function[i, 0, 0:self.t] = np.array([list(value_input)])
             function[i, 1, 0:self.t] = np.array([list(value_output)])
         return function.astype(int)
@@ -60,20 +70,24 @@ class ShorsSecondRegister:
         """
         function_quantum_state = np.zeros([self.state_no, 2, self.state_no])
         my_dict = {0: np.array([[1, 0]]), 1: np.array([[0, 1]])}
-        
+
         for i in range(0, self.state_no):
             temp_input = 0
             temp_output = 0
-            initial_input = np.kron(my_dict[int(function[i, 0, 0])], my_dict[int(function[i, 0, 1])])
-            
-            initial_output = np.kron(my_dict[int(function[i, 1, 0])], my_dict[int(function[i, 1, 1])])
+            initial_input = np.kron(my_dict[int(function[i, 0, 0])],
+                                    my_dict[int(function[i, 0, 1])])
+
+            initial_output = np.kron(my_dict[int(function[i, 1, 0])],
+                                     my_dict[int(function[i, 1, 1])])
             if self.t == 2:
                 function_quantum_state[i, 0, 0:self.state_no] = initial_input
                 function_quantum_state[i, 1, 0:self.state_no] = initial_output
             else:
                 for k in range(2, self.t):
-                    temp_input = np.kron(my_dict[int(function[i, 0, k])], initial_input)
-                    temp_output = np.kron(my_dict[int(function[i, 1, k])], initial_output)
+                    temp_input = np.kron(my_dict[int(function[i, 0, k])],
+                                         initial_input)
+                    temp_output = np.kron(my_dict[int(function[i, 1, k])],
+                                          initial_output)
                     initial_input = temp_input
                     initial_output = temp_output
             function_quantum_state[i, 0, 0:self.state_no] = initial_input
@@ -91,7 +105,8 @@ class ShorsSecondRegister:
         combined_registers = np.empty([len(initial_states), 2, self.state_no])
         for i in range(0, len(initial_states)):
             find = initial_states[i]
-            index = np.int(np.where((function[:, 0, :]).dot(find) == sum(find))[0])
+            index = np.int(np.where((function[:, 0, :]).dot(find) ==
+                                    sum(find))[0])
             combined_registers[i, 0, 0:self.state_no] = find
             combined_registers[i, 1, 0:self.state_no] = function[index, 1]
         return combined_registers
