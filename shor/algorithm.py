@@ -29,8 +29,8 @@ class Shors:
 
     def compute_r(self):
         """
-        Method for computing r \n
-        @return: An integer for r \n
+        Method for computing probability amplitudes of the QFT \n
+        @return: Numerical indexes of the states \n
         """
         indexes = ShorsSecondRegister.pick_out_states(self)
         probs = np.abs((np.real(self.qft.generate_superposition()))) ** 2
@@ -44,8 +44,8 @@ class Shors:
 
     def cf(self, n):
         """
-        Method for finding cf \n
-        @
+        Method for computing partial expansion of n/2^N \n
+        @param n: Number of qubits in the system \n
         """
         d = self.state_no
         res = []
@@ -56,3 +56,18 @@ class Shors:
             q, r = divmod(d, r)
             d = prev_r
         return sum(res + [q])
+
+    def compute_shors(self):
+        """
+        Putting the states through shor's\n
+        @return: Output of Shors \n
+        """
+        thing = Shors.compute_r(self)
+        r = Shors.cf(self, thing)
+        while r % 2 != 0:
+            r = Shors.cf(self, Shors.compute_r(self))
+            a1 = int((self.a ** (r / 2)) - 1)
+            a2 = int((self.a ** (r / 2)) + 1)
+        a1 = int((self.a ** (r / 2)) - 1)
+        a2 = int((self.a ** (r / 2)) + 1)
+        return np.gcd(a1, self.N), np.gcd(a2, self.N)
